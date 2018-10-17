@@ -34,29 +34,30 @@ public class AutoRAI {
             }
 
         } finally {
+            printLog();
             lock.unlock();
         }
     }
 
-    public void visit() throws InterruptedException  {
+    public void visit() throws InterruptedException {
         lock.lock();
         try {
             if (Thread.currentThread() instanceof Visitor) {
-                while(!visitorCanEnter()){
+                while (!visitorCanEnter()) {
                     buyerAvailable.signal();
                     visitorAvailable.await();
                 }
-                if(tempQueueCounter > 0){
+                if (tempQueueCounter > 0) {
                     tempQueueCounter--;
                 }
-                if(tempQueueCounter == 0){
+                if (tempQueueCounter == 0) {
                     buyerAvailable.signal();
                     currentConsecutiveBuyers = 0;
                 }
                 visitorQueue--;
                 currentVisitors++;
             } else {
-                while(!buyerCanEnter()){
+                while (!buyerCanEnter()) {
                     buyerAvailable.await();
                 }
 
@@ -65,7 +66,7 @@ public class AutoRAI {
                 currentBuyers++;
             }
         } finally {
-            System.out.println("[AUTORAI]   " + currentVisitors + "/100 Visitors inside.    " + currentBuyers + "/1 Buyer inside.     " + visitorQueue + " Visitors in the queue.     " + buyerQueue + " Buyers in the queue.");
+            printLog();
             lock.unlock();
         }
     }
@@ -77,7 +78,7 @@ public class AutoRAI {
                 currentVisitors--;
                 visitorAvailable.signal();
             } else {
-                if(currentConsecutiveBuyers == MAX_CONSECUTIVE_BUYERS){
+                if (currentConsecutiveBuyers == MAX_CONSECUTIVE_BUYERS) {
                     //store ppl in queue
                     tempQueueCounter = visitorQueue;
                     visitorAvailable.signal();
@@ -88,17 +89,16 @@ public class AutoRAI {
                 currentBuyers--;
             }
         } finally {
-            System.out.println("[AUTORAI]   " + currentVisitors + "/100 Visitors inside.    " + currentBuyers + "/1 Buyer inside.     " + visitorQueue + " Visitors in the queue.     " + buyerQueue + " Buyers in the queue.");
-
+            printLog();
             lock.unlock();
         }
     }
 
-    private boolean visitorCanEnter(){
+    private boolean visitorCanEnter() {
         return !((reachedCapacity() || isBuyerInside() || isBuyerInQueue()));
     }
 
-    private boolean buyerCanEnter(){
+    private boolean buyerCanEnter() {
         return !(consecutiveBuyerReached() || isVisitorInside() || isBuyerInside());
     }
 
@@ -106,20 +106,23 @@ public class AutoRAI {
         return currentVisitors == RAI_CAPACITY;
     }
 
-    private boolean consecutiveBuyerReached(){
+    private boolean consecutiveBuyerReached() {
         return currentConsecutiveBuyers == MAX_CONSECUTIVE_BUYERS;
     }
 
-    private boolean isBuyerInside(){
+    private boolean isBuyerInside() {
         return currentBuyers > 0;
     }
 
-    private boolean isVisitorInside(){
+    private boolean isVisitorInside() {
         return currentVisitors > 0;
     }
 
-    private boolean isBuyerInQueue(){
+    private boolean isBuyerInQueue() {
         return buyerQueue > 0 && currentConsecutiveBuyers != MAX_CONSECUTIVE_BUYERS;
     }
 
+    private void printLog() {
+        System.out.println("[AUTORAI]   " + currentVisitors + "/100 Visitors inside.    " + currentBuyers + "/1 Buyer inside.     " + visitorQueue + " Visitors in the queue.     " + buyerQueue + " Buyers in the queue.");
+    }
 }
