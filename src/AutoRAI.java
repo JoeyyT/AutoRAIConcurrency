@@ -24,6 +24,9 @@ public class AutoRAI {
         buyerAvailable = lock.newCondition();
     }
 
+    /**
+     * Enters queue
+     */
     public void tryEnter() {
         lock.lock();
         try {
@@ -39,6 +42,10 @@ public class AutoRAI {
         }
     }
 
+    /**
+     * Exits queue, visits RAI
+     * @throws InterruptedException
+     */
     public void visit() throws InterruptedException {
         lock.lock();
         try {
@@ -71,6 +78,9 @@ public class AutoRAI {
         }
     }
 
+    /**
+     * Leaves RAI
+     */
     public void leave() {
         lock.lock();
         try {
@@ -94,34 +104,65 @@ public class AutoRAI {
         }
     }
 
+    /**
+     * True or false whether visitor can enter
+     * @return boolean
+     */
     private boolean visitorCanEnter() {
         return !((reachedCapacity() || isBuyerInside() || isBuyerInQueue()));
     }
 
+    /**
+     * True or false whether buyer can enter
+     * @return boolean
+     */
     private boolean buyerCanEnter() {
         return !(consecutiveBuyerReached() || isVisitorInside() || isBuyerInside());
     }
 
+    /**
+     * True or false whether RAI reached max capacity
+     * @return boolean
+     */
     private boolean reachedCapacity() {
         return currentVisitors == RAI_CAPACITY;
     }
 
+    /**
+     * True or false whether consecutive buyers is reached
+     * @return boolean
+     */
     private boolean consecutiveBuyerReached() {
         return currentConsecutiveBuyers == MAX_CONSECUTIVE_BUYERS;
     }
 
+    /**
+     *
+     * @return boolean
+     */
     private boolean isBuyerInside() {
         return currentBuyers > 0;
     }
 
+    /**
+     *
+     * @return boolean
+     */
     private boolean isVisitorInside() {
         return currentVisitors > 0;
     }
 
+    /**
+     * True or false whether buyer is in queue or not
+     * @return boolean
+     */
     private boolean isBuyerInQueue() {
         return buyerQueue > 0 && currentConsecutiveBuyers != MAX_CONSECUTIVE_BUYERS;
     }
 
+    /**
+     * Prints statistics
+     */
     private void printLog() {
         System.out.println("[AUTORAI]   " + currentVisitors + "/100 Visitors inside.    " + currentBuyers + "/1 Buyer inside.     " + visitorQueue + " Visitors in the queue.     " + buyerQueue + " Buyers in the queue.");
     }

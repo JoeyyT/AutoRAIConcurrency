@@ -20,10 +20,18 @@ public class Visitor extends Thread{
         }
     }
 
+    /**
+     * Roams the world, stays alive
+     * @throws InterruptedException
+     */
     public void stayAlive() throws InterruptedException{
         Thread.sleep((int) (Math.random() * 5000 + 1000));
     }
 
+    /**
+     * Roams RAI
+     * @throws InterruptedException
+     */
     public void roamRAI() throws InterruptedException{
         Thread.sleep((int) (Math.random() * 1000 + 1000));
     }
